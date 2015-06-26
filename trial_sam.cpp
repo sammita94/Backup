@@ -423,11 +423,13 @@ int main(int arg, char *argv[])
         }
 
         /*the playback-time*/
-        int check = (int)d%900;
+        int check = (int)d%600;
         if(check==0 && d>1000)
         {
             for(int present_client=0;present_client<no_of_clients;present_client++)
             {
+                if(clients[present_client].state==3)
+                    continue;
                 if(clients[present_client].database_client.chunk_playing.chunk_present==0)
                 {
                     clients[present_client].database_client.chunk_playing.chunk_present=1;
