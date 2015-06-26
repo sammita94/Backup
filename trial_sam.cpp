@@ -318,6 +318,7 @@ int main(int arg, char *argv[])
     int *index_of_chunk_downloading = new int[no_of_clients];//marks the packet downloading
     int *index_of_packet_downloading = new int[no_of_clients];//marks the packet downloading
     int *index_of_chunk_playing = new int[no_of_clients];
+    //int *cur= new int[no_of_clients];
     //memset(index_of_packet_downloading,0,sizeof(index_of_packet_downloading));
     //memset(index_of_chunk_downloading,0,sizeof(index_of_chunk_downloading));
     for(i=0;i<no_of_clients;i++)
@@ -325,6 +326,7 @@ int main(int arg, char *argv[])
         position_file[i]=0;
         index_of_packet_downloading[i]=0;
         index_of_chunk_downloading[i]=0;
+        //cur[i]=0;
     }
 
     string coor,res,p1=".txt",s1;
@@ -334,7 +336,7 @@ int main(int arg, char *argv[])
     request_client_to_AP *request = new request_client_to_AP[no_of_clients];
 
 
-    int d=0;int cur=0;
+    int d=0,cur=0;
     for(float tick=0;reached<no_of_clients;tick=tick+tick_time)
     {
         d++;
@@ -361,7 +363,7 @@ int main(int arg, char *argv[])
             work.close();
             if(clients[present_client].state==0)
             {
-                //cout<<"#";
+                cout<<"#";
                 x=clients[present_client].co_ordinates_client.first-APs[clients[present_client].next_AP_id].AP_coordinates.first;
                 y=clients[present_client].co_ordinates_client.second-APs[clients[present_client].next_AP_id].AP_coordinates.second;
                 dist=(float)sqrt(pow(x,2)+pow(y,2));
@@ -381,11 +383,11 @@ int main(int arg, char *argv[])
             }
            if(clients[present_client].state==1)
             {
-                /*if(find(clients[present_client].faulty_aps.begin(),clients[present_client].faulty_aps.end(),clients[present_client].present_AP_id)!=clients[present_client].faulty_aps.end())
+                if(find(clients[present_client].faulty_aps.begin(),clients[present_client].faulty_aps.end(),clients[present_client].present_AP_id)!=clients[present_client].faulty_aps.end())
                 {
                     clients[present_client].state=0;
                     continue;
-                }*/
+                }
                 x=clients[present_client].co_ordinates_client.first-APs[clients[present_client].present_AP_id].AP_coordinates.first;
                 y=clients[present_client].co_ordinates_client.second-APs[clients[present_client].present_AP_id].AP_coordinates.second;
                 dist=(float)sqrt(pow(x,2)+pow(y,2));
@@ -393,6 +395,7 @@ int main(int arg, char *argv[])
                 {
                     //request[present_client].download_chunk=APs[clients[present_client].present_AP_id].chunks_present_in_AP;
                     request[present_client]=make_request(clients[present_client],APs[clients[present_client].present_AP_id]);
+                    cout<<request[present_client].download_chunk.front()<<" ";
                     clients[present_client].state=2;
                 }
                 if(dist>inter_ap_dist)
@@ -414,13 +417,14 @@ int main(int arg, char *argv[])
                     //for (list<int>::iterator it=request[present_client].download_chunk.begin(); it != request[present_client].download_chunk.end(); ++it)
                         //cout<<*it<<" ";
                     //cout<<"#"<<endl;
+                    cout<<index_of_chunk_downloading[present_client]<<" "<<present_client<<endl;
                     if(index_of_packet_downloading[present_client]==2000 || index_of_packet_downloading==0)
                     {
                         while(cur==0 && !request[present_client].download_chunk.empty())
                         {
                             cur=request[present_client].download_chunk.front();
                             request[present_client].download_chunk.pop_front();
-                            if(clients[present_client].database_client.chunk_present[cur].no_of_packets<2000 || clients[present_client].database_client.chunk_present[cur].chunk_present!=0)
+                            if(clients[present_client].database_client.chunk_present[cur].no_of_packets<2000 || clients[present_client].database_client.chunk_present[cur].chunk_present==0)
                             {
                                 index_of_chunk_downloading[present_client]=cur;
                                 index_of_packet_downloading[present_client]=clients[present_client].database_client.chunk_present[cur].no_of_packets;
@@ -434,6 +438,19 @@ int main(int arg, char *argv[])
                     clients[present_client].database_client.chunk_present[index_of_chunk_downloading[present_client]].chunk_present=1;
                     clients[present_client].database_client.chunk_present[index_of_chunk_downloading[present_client]].no_of_packets=index_of_packet_downloading[present_client];
 
+                    /*while(cur[present_client]==0 || index_of_packet_downloading[present_client]==2000)
+                    {
+                        cur[present_client]=request[present_client].download_chunk.front();
+                        request[present_client].download_chunk.pop_front();
+                        index_of_packet_downloading[present_client]=clients[present_client].database_client.chunk_present[cur[present_client]].no_of_packets;
+                    }
+                    clients[present_client].database_client.chunk_present[cur[present_client]].chunk_present=1;
+                    index_of_packet_downloading[present_client]++;
+                    clients[present_client].database_client.chunk_present[cur[present_client]].no_of_packets++;
+                    if(index_of_packet_downloading[present_client]==2000)
+                    {
+                        cur[present_client]=0;
+                    }
                         //cout<<index_of_chunk_downloading[present_client]<<"$"<<present_client<<endl;
                         /*if(index_of_packet_downloading[present_client]>=2000 || index_of_packet_downloading[present_client]<=0)
                         {
@@ -458,16 +475,17 @@ int main(int arg, char *argv[])
                 if(dist>inter_ap_dist)
                 {
                     clients[present_client].state=0;
+                    cur=0;
                     continue;
                 }
             }
 
         }
-        int check = (int)d%700;
-        cout<<d;
+        int check = (int)d%900;
+        //cout<<d;
         int copyy;//(int)tick%(int)ran;
         //cout<<check<<endl;
-        if(check==0)
+        if(check==0 && d>1000)
         {
             for(int present_client=0;present_client<no_of_clients;present_client++)
             {
