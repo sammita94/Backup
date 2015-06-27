@@ -423,7 +423,7 @@ int main(int arg, char *argv[])
         }
 
         /*the playback-time*/
-        int check = (int)d%600;
+        int check = (int)d%500;
         if(check==0 && d>1000)
         {
             for(int present_client=0;present_client<no_of_clients;present_client++)
