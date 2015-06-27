@@ -32,6 +32,7 @@ int main(int argc, char *argv[])
 
         fdo=double(no_of_lines/total_packets);
         fdo=fdo*100;
+        fdo=100-fdo;
         fdo_record<<to_string(present_client)<<" "<<to_string(fdo)<<"\n";
 
         work.close();
